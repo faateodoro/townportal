@@ -1,9 +1,6 @@
 package com.fteodoro.townportal.api;
 
-import com.fteodoro.townportal.user.User;
-import com.fteodoro.townportal.user.UserDto;
-import com.fteodoro.townportal.user.UserForm;
-import com.fteodoro.townportal.user.UserRepository;
+import com.fteodoro.townportal.user.*;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,48 +13,48 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("/api")
-public class UserController {
-    private final UserRepository userRepository;
+public class UserApiController {
+    private UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserApiController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/usuarios")
     @Transactional
     public ResponseEntity create(@RequestBody @Valid UserForm userForm, UriComponentsBuilder uriComponentsBuilder) {
-        User user = new User(userForm);
-        userRepository.save(user);
-        URI uri = uriComponentsBuilder.path("/usuarios/{id}/detalhe").buildAndExpand(user.getId()).toUri();
+        User user = this.userService.saveUser(userForm);
+        URI uri = this.getUriFor(uriComponentsBuilder, user);
         return ResponseEntity.created(uri).build();
     }
 
     @GetMapping("/usuarios")
     public ResponseEntity<Page<UserDto>> getAll(Pageable pageable) {
-        Page<UserDto> usersPage = userRepository.findAllByActiveTrue(pageable).map(UserDto::new);
+        Page<UserDto> usersPage = this.userService.pageAllUsers(pageable);
         return ResponseEntity.ok(usersPage);
     }
 
     @GetMapping("/usuarios/{id}/detalhe")
     public ResponseEntity getOne(@PathVariable Long id) {
-        User user = userRepository.getReferenceById(id);
+        User user = userService.getUser(id);
         return ResponseEntity.ok(new UserDto(user));
     }
 
     @DeleteMapping("/usuarios/{id}")
     @Transactional
     public ResponseEntity exclude(@PathVariable Long id) {
-        User user = userRepository.getReferenceById(id);
-        user.inactivate();
+        userService.inactivateUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/usuarios/{id}")
     @Transactional
     public ResponseEntity update(@PathVariable Long id, @RequestBody UserForm userForm) {
-        User user = userRepository.getReferenceById(id);
-        user.updateData(userForm);
-        userRepository.save(user);
+        User user = userService.updateUser(id, userForm);
         return ResponseEntity.ok(user);
+    }
+
+    private URI getUriFor(UriComponentsBuilder uriComponentsBuilder, User user) {
+        return uriComponentsBuilder.path("/usuarios/{id}/detalhe").buildAndExpand(user.getId()).toUri();
     }
 }
