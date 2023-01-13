@@ -1,15 +1,19 @@
 package com.fteodoro.townportal.user;
 
-import com.fteodoro.townportal.base.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+import java.time.LocalDateTime;
+
+import static java.time.LocalDateTime.now;
+
 @Entity
-public class User extends BaseEntity {
+public class User {
+    @Id
+    @GeneratedValue
+    protected Long id;
+    protected LocalDateTime createdAt = now();
 
     @Column(unique = true)
     private String nickname;
@@ -31,6 +35,7 @@ public class User extends BaseEntity {
 
     public User(UserForm userForm) {
         this.nickname = userForm.nickname();
+        this.name = userForm.name();
         this.email = userForm.email();
         this.role = Role.valueOf(userForm.role());
     }
@@ -40,6 +45,14 @@ public class User extends BaseEntity {
         this.email = email;
         this.name = name;
         this.role = role;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public String getNickname() {
@@ -60,5 +73,16 @@ public class User extends BaseEntity {
 
     public Role getRole() {
         return role;
+    }
+
+    public void inactivate() {
+        this.active = false;
+    }
+
+    public void updateData(UserForm userForm) {
+        if (userForm.nickname() != null) this.nickname = userForm.nickname();
+        if (userForm.name() != null) this.name = userForm.name();
+        if (userForm.email() != null) this.email = userForm.email();
+        if (userForm.role() != null) this.role = Role.valueOf(userForm.role());
     }
 }
