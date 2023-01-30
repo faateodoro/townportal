@@ -11,7 +11,7 @@ import static java.time.LocalDateTime.now;
 @Entity
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     protected Long id;
     protected LocalDateTime createdAt = now();
 
