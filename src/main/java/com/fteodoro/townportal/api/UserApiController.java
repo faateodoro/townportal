@@ -34,7 +34,7 @@ public class UserApiController {
         return ResponseEntity.ok(usersPage);
     }
 
-    @GetMapping("/usuarios/{id}/detalhe")
+    @GetMapping("/usuarios/{id}")
     public ResponseEntity getOne(@PathVariable Long id) {
         User user = userService.getUser(id);
         return ResponseEntity.ok(new UserDto(user));
@@ -55,6 +55,6 @@ public class UserApiController {
     }
 
     private URI getUriFor(UriComponentsBuilder uriComponentsBuilder, User user) {
-        return uriComponentsBuilder.path("/usuarios/{id}/detalhe").buildAndExpand(user.getId()).toUri();
+        return uriComponentsBuilder.path("/usuarios/{id}").buildAndExpand(user.getId()).toUri();
     }
 }
