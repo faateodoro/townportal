@@ -14,7 +14,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api")
 public class UserApiController {
-    private UserService userService;
+    private final UserService userService;
 
     public UserApiController(UserService userService) {
         this.userService = userService;
@@ -42,7 +42,7 @@ public class UserApiController {
 
     @DeleteMapping("/usuarios/{id}")
     @Transactional
-    public ResponseEntity exclude(@PathVariable Long id) {
+    public ResponseEntity delete(@PathVariable Long id) {
         userService.inactivateUser(id);
         return ResponseEntity.noContent().build();
     }
